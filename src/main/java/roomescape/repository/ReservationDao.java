@@ -27,6 +27,7 @@ public class ReservationDao {
                 users.name              AS users_name,
                 users.login_id          AS users_login_id,
                 users.password          AS users_password,
+                users.role              AS users_role,
                 time.id                 AS time_id,
                 time.start_at           AS time_value,
                 theme.id                AS theme_id,
@@ -47,7 +48,8 @@ public class ReservationDao {
                 rs.getLong("users_id"),
                 rs.getString("users_name"),
                 rs.getString("users_login_id"),
-                rs.getString("users_password")
+                rs.getString("users_password"),
+                rs.getString("users_role")
         );
 
         Theme theme = Theme.create(

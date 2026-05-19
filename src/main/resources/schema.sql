@@ -7,8 +7,9 @@ CREATE TABLE users
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     name          VARCHAR(255) NOT NULL,
-    login_id       VARCHAR(255) NOT NULL,
+    login_id      VARCHAR(255) NOT NULL,
     password      VARCHAR(500) NOT NULL,
+    role          VARCHAR(20)  NOT NULL DEFAULT 'USER',
     PRIMARY KEY (id)
 );
 

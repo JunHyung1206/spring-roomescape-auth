@@ -22,10 +22,10 @@ VALUES ('10:00'),
        ('15:00'),
        ('16:00');
 
-INSERT INTO users (name, login_id, password)
-VALUES ('사용자1', 'user_a', '1234'),
-       ('사용자2', 'user_b', '1234'),
-       ('사용자3', 'user_c', '1234');
+INSERT INTO users (name, login_id, password, role)
+VALUES ('사용자1', 'user_a', '1234', 'ADMIN'),
+       ('사용자2', 'user_b', '1234', 'USER'),
+       ('사용자3', 'user_c', '1234', 'USER');
 
 -- reservation (집계 기간: 04-28 ~ 05-04)
 -- 예상 순위: 1(7건) > 2(6건) > 3(5건) > 4(4건) > 5(4건) > 6(3건) > 7(3건) > 8(2건) > 9(2건) > 10(1건) / 11(0건)

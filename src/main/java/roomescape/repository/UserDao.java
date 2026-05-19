@@ -21,7 +21,8 @@ public class UserDao {
             rs.getLong("id"),
             rs.getString("name"),
             rs.getString("login_id"),
-            rs.getString("password")
+            rs.getString("password"),
+            rs.getString("role")
     );
 
     public UserDao(JdbcTemplate jdbcTemplate) {

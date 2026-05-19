@@ -15,10 +15,10 @@ INSERT INTO reservation_time (start_at) VALUES ('10:00');
 INSERT INTO reservation_time (start_at) VALUES ('12:00');
 INSERT INTO reservation_time (start_at) VALUES ('13:00');
 
-INSERT INTO users (name, login_id, password)
-VALUES ('사용자1', 'user_a', '1234'),
-       ('사용자2', 'user_b', '1234'),
-       ('사용자3', 'user_c', '1234');
+INSERT INTO users (name, login_id, password, role)
+VALUES ('사용자1', 'user_a', '1234', 'ADMIN'),
+       ('사용자2', 'user_b', '1234', 'USER'),
+       ('사용자3', 'user_c', '1234', 'USER');
 
 
 -- 과거 예약 (fixed clock: 2026-05-05)

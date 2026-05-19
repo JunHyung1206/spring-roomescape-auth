@@ -29,10 +29,10 @@ VALUES ('10:00'),
        ('15:00'),
        ('16:00');
 
-INSERT INTO users (name, login_id, password)
-VALUES ('사용자1', 'user_a', '1234'),
-       ('사용자2', 'user_b', '1234'),
-       ('사용자3', 'user_c', '1234');
+INSERT INTO users (name, login_id, password, role)
+VALUES ('사용자1', 'user_a', '1234', 'ADMIN'),
+       ('사용자2', 'user_b', '1234', 'USER'),
+       ('사용자3', 'user_c', '1234', 'USER');
 
 
 

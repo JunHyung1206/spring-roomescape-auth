@@ -8,9 +8,10 @@ public class User {
     private final String name;
     private final String loginId;
     private final String password;
+    private final Role role;
 
-    public static User create(long id, String name, String userId, String password) {
-        return new User(id, name, userId, password);
+    public static User create(long id, String name, String loginId, String password, String role) {
+        return new User(id, name, loginId, password, Role.valueOf(role));
     }
 
     public Long id() {
@@ -27,5 +28,13 @@ public class User {
 
     public String password() {
         return password;
+    }
+
+    public Role role() {
+        return role;
+    }
+
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
     }
 }
