@@ -172,7 +172,13 @@
 <body>
 
 <div class="toast" id="toast"></div>
-<header>방탈출 관리자</header>
+<header style="display:flex;justify-content:space-between;align-items:center;">
+    <span>방탈출 관리자</span>
+    <span style="font-size:0.85rem;font-weight:normal;">
+        <span id="userName"></span>
+        <button onclick="logout()" style="margin-left:12px;padding:6px 14px;background:#e74c3c;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.85rem;">로그아웃</button>
+    </span>
+</header>
 
 <div class="tab-bar">
     <div class="tab active" onclick="showTab('theme')">테마</div>
@@ -239,7 +245,7 @@
         <div class="card">
             <h2>예약 추가</h2>
             <div class="form-row">
-                <input type="text" id="res-name" placeholder="예약자 이름">
+                <select id="res-user"></select>
                 <input type="date" id="res-date">
                 <select id="res-time"></select>
                 <select id="res-theme"></select>
@@ -267,6 +273,21 @@
 </div>
 
 <script>
+    async function checkLogin() {
+        const res = await fetch('/login-check');
+        if (res.status === 401 || res.status === 403) {
+            window.location.href = '/login';
+            return;
+        }
+        const data = await res.json();
+        document.getElementById('userName').textContent = data.name + '님';
+    }
+
+    async function logout() {
+        await fetch('/logout', {method: 'POST'});
+        window.location.href = '/login';
+    }
+
     function showToast(msg) {
         const el = document.getElementById('toast');
         el.textContent = msg;
@@ -369,6 +390,14 @@
         loadTimes();
     }
 
+    // ── 사용자 ──
+    async function loadUsers() {
+        const res = await fetch('/admin/users');
+        const users = await res.json();
+        const sel = document.getElementById('res-user');
+        sel.innerHTML = users.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+    }
+
     // ── 예약 ──
     async function loadReservations() {
         const res = await fetch('/admin/reservations');
@@ -388,15 +417,15 @@
     }
 
     async function createReservation() {
-        const name = document.getElementById('res-name').value.trim();
+        const userId = Number(document.getElementById('res-user').value);
         const date = document.getElementById('res-date').value;
         const timeId = Number(document.getElementById('res-time').value);
         const themeId = Number(document.getElementById('res-theme').value);
-        if (!name || !date) return;
+        if (!userId || !date) return;
         const res = await fetch('/admin/reservations', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name, date, timeId, themeId})
+            body: JSON.stringify({userId, date, timeId, themeId})
         });
         if (!res.ok) { await handleError(res); return; }
         loadReservations();
@@ -409,9 +438,12 @@
     }
 
     // 초기 로드
-    loadThemes();
-    loadTimes();
-    loadReservations();
+    checkLogin().then(() => {
+        loadThemes();
+        loadTimes();
+        loadUsers();
+        loadReservations();
+    });
 </script>
 </body>
 </html>

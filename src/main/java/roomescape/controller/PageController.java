@@ -15,4 +15,9 @@ public class PageController {
     public String adminPage() {
         return "forward:/admin/index.html";
     }
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "forward:/login/index.html";
+    }
 }

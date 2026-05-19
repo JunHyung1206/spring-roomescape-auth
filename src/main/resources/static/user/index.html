@@ -356,7 +356,13 @@
 </head>
 <body>
 
-<header>방탈출 예약</header>
+<header style="display:flex;justify-content:space-between;align-items:center;">
+    <span>방탈출 예약</span>
+    <span style="font-size:0.9rem;font-weight:normal;">
+        <span id="userName"></span>
+        <button onclick="logout()" style="margin-left:12px;padding:6px 14px;background:#e74c3c;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.85rem;">로그아웃</button>
+    </span>
+</header>
 
 <div class="tab-bar">
     <div class="tab active" onclick="showTab('reservation')">예약하기</div>
@@ -381,13 +387,10 @@
         </div>
 
         <div class="card hidden" id="step2">
-            <h2>2. 시간을 선택하고 이름을 입력하세요</h2>
+            <h2>2. 시간을 선택하세요</h2>
 
             <label>예약 가능한 시간</label>
             <div class="time-list" id="timeList"></div>
-
-            <label for="name" style="margin-top: 8px;">예약자 이름</label>
-            <input type="text" id="name" placeholder="이름을 입력하세요">
 
             <div id="alertBox"></div>
 
@@ -406,11 +409,7 @@
     <!-- 내 예약 -->
     <div class="section" id="section-my">
         <div class="card">
-            <h2>내 예약 조회</h2>
-            <div class="my-search">
-                <input type="text" id="myName" placeholder="예약자 이름을 입력하세요">
-                <button class="btn-primary" onclick="loadMyReservations()">조회</button>
-            </div>
+            <h2>내 예약</h2>
             <div id="myAlertBox"></div>
             <div class="reservation-list" id="reservationList"></div>
         </div>
@@ -422,6 +421,21 @@
     let selectedTimeId = null;
     let selectedThemeId = null;
 
+    async function checkLogin() {
+        const res = await fetch('/login-check');
+        if (res.status === 401) {
+            window.location.href = '/login';
+            return;
+        }
+        const data = await res.json();
+        document.getElementById('userName').textContent = data.name + '님';
+    }
+
+    async function logout() {
+        await fetch('/logout', {method: 'POST'});
+        window.location.href = '/login';
+    }
+
     function showTab(name) {
         document.querySelectorAll('.tab').forEach((t, i) => {
             t.classList.toggle('active', ['reservation', 'popular', 'my'][i] === name);
@@ -430,16 +444,11 @@
         document.getElementById('section-' + name).classList.add('active');
 
         if (name === 'popular') loadPopularThemes();
+        if (name === 'my') loadMyReservations();
     }
 
     async function loadMyReservations() {
-        const name = document.getElementById('myName').value.trim();
-        if (!name) {
-            showMyAlert('이름을 입력해주세요.', 'error');
-            return;
-        }
-
-        const res = await fetch(`/reservations?name=${encodeURIComponent(name)}`);
+        const res = await fetch('/reservations');
         const reservations = await res.json();
         const list = document.getElementById('reservationList');
 
@@ -613,28 +622,22 @@
     }
 
     async function submitReservation() {
-        const name = document.getElementById('name').value.trim();
         const date = document.getElementById('date').value;
 
         if (!selectedTimeId) {
             showAlert('시간을 선택해주세요.', 'error');
             return;
         }
-        if (!name) {
-            showAlert('이름을 입력해주세요.', 'error');
-            return;
-        }
 
         const res = await fetch('/reservations', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name, date, timeId: selectedTimeId, themeId: Number(selectedThemeId)})
+            body: JSON.stringify({date, timeId: selectedTimeId, themeId: Number(selectedThemeId)})
         });
 
         if (res.ok) {
             showAlert('예약이 완료되었습니다!', 'success');
             loadAvailableTimes();
-            document.getElementById('name').value = '';
         } else {
             const err = await res.json().catch(() => ({message: '예약에 실패했습니다.'}));
             showAlert(err.message, 'error');
@@ -665,7 +668,7 @@
         document.getElementById('alertBox').innerHTML = '';
     }
 
-    loadThemes();
+    checkLogin().then(() => loadThemes());
 </script>
 </body>
 </html>
