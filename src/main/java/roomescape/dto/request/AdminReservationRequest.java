@@ -6,7 +6,10 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record ReservationRequest(
+public record AdminReservationRequest(
+        @Min(value = 1, message = "유효한 유저 ID가 필요합니다.")
+        long userId,
+
         @NotNull(message = "날짜는 필수입니다.")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
         LocalDate date,

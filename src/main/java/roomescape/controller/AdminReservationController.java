@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import roomescape.domain.Reservation;
-import roomescape.dto.request.ReservationRequest;
+import roomescape.dto.request.AdminReservationRequest;
 import roomescape.dto.response.ReservationResponse;
 import roomescape.service.ReservationCommandService;
 import roomescape.service.ReservationQueryService;
@@ -40,7 +40,7 @@ public class AdminReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody ReservationRequest request) {
+    public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody AdminReservationRequest request) {
         Reservation reservation = reservationCommandService.create(request.userId(), request.date(), request.timeId(), request.themeId());
 
         Long savedId = reservation.id();

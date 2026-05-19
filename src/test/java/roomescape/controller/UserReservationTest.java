@@ -20,26 +20,14 @@ import static org.hamcrest.Matchers.is;
 class UserReservationTest extends AuthenticatedTest {
 
     @Test
-    @DisplayName("이름으로 내 예약 목록을 조회한다.")
+    @DisplayName("내 예약 목록을 조회한다.")
     void getMyReservations() {
         given().log().all()
-                .queryParam("userId", 1L)
                 .when().get("/reservations")
                 .then().log().all()
                 .statusCode(200)
                 .body("size()", is(1))
                 .body("[0].name", is("사용자1"));
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 userId로 조회하면 빈 목록을 반환한다.")
-    void getMyReservationsWithUnknownName() {
-        given().log().all()
-                .queryParam("userId", 999L)
-                .when().get("/reservations")
-                .then().log().all()
-                .statusCode(200)
-                .body("size()", is(0));
     }
 
     @Test

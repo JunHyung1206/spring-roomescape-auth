@@ -23,7 +23,6 @@ public class ReservationTest extends AuthenticatedTest {
     void createReservationTest() {
 
         Map<String, Object> params = new HashMap<>();
-        params.put("userId", 1L);
         params.put("date", "2026-06-05");
         params.put("timeId", 1L);
         params.put("themeId", 2L);

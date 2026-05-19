@@ -30,7 +30,6 @@ class ReservationFlowTest extends AuthenticatedTest {
                 .body("size()", is(3));
 
         Map<String, Object> params = new HashMap<>();
-        params.put("userId", 2L);
         params.put("date", "2026-06-28");
         params.put("timeId", 1L);
         params.put("themeId", 2L);
