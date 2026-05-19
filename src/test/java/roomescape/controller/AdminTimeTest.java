@@ -16,14 +16,14 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class AdminTimeTest {
+class AdminTimeTest extends AuthenticatedTest {
     @Test
     @DisplayName("테마를 생성하는지에 대한 테스트")
     void createTheme() {
         Map<String, String> params = new HashMap<>();
         params.put("startAt", "11:00");
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/admin/times")
@@ -35,7 +35,7 @@ class AdminTimeTest {
     @Test
     @DisplayName("시간을 조회하는지에 대한 테스트")
     void readThemes() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().get("/admin/times")
                 .then().log().all()
                 .statusCode(200)
@@ -46,7 +46,7 @@ class AdminTimeTest {
     @Test
     @DisplayName("예약 없는 시간 삭제 성공")
     void deleteThemeWithoutReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/admin/times/3")
                 .then().log().all()
                 .statusCode(204);
@@ -55,7 +55,7 @@ class AdminTimeTest {
     @Test
     @DisplayName("예약 있는 시간 삭제 실패")
     void deleteThemeWithReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/admin/times/1")
                 .then().log().all()
                 .statusCode(400);

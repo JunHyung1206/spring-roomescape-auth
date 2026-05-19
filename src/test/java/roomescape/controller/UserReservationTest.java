@@ -17,12 +17,12 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class UserReservationTest {
+class UserReservationTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("이름으로 내 예약 목록을 조회한다.")
     void getMyReservations() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .queryParam("userId", 1L)
                 .when().get("/reservations")
                 .then().log().all()
@@ -34,7 +34,7 @@ class UserReservationTest {
     @Test
     @DisplayName("존재하지 않는 userId로 조회하면 빈 목록을 반환한다.")
     void getMyReservationsWithUnknownName() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .queryParam("userId", 999L)
                 .when().get("/reservations")
                 .then().log().all()
@@ -45,7 +45,7 @@ class UserReservationTest {
     @Test
     @DisplayName("미래 예약을 취소한다.")
     void cancelFutureReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/reservations/2")
                 .then().log().all()
                 .statusCode(204);
@@ -54,7 +54,7 @@ class UserReservationTest {
     @Test
     @DisplayName("지난 예약 취소 시 400을 반환한다.")
     void cancelPastReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/reservations/1")
                 .then().log().all()
                 .statusCode(400);
@@ -63,7 +63,7 @@ class UserReservationTest {
     @Test
     @DisplayName("존재하지 않는 예약 취소 시 404를 반환한다.")
     void cancelNonExistentReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/reservations/999")
                 .then().log().all()
                 .statusCode(404);
@@ -76,7 +76,7 @@ class UserReservationTest {
         params.put("date", "2026-07-01");
         params.put("timeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/2")
@@ -93,7 +93,7 @@ class UserReservationTest {
         params.put("date", "2026-04-01");
         params.put("timeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/2")
@@ -108,7 +108,7 @@ class UserReservationTest {
         params.put("date", "2026-06-05");
         params.put("timeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/2")
@@ -123,7 +123,7 @@ class UserReservationTest {
         params.put("date", "2026-07-01");
         params.put("timeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/999")

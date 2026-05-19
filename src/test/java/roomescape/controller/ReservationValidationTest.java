@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.containsString;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Import(FixedClockConfig.class)
-public class ReservationValidationTest {
+public class ReservationValidationTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("날짜가 없으면 400과 함께 date 필드 오류 메시지를 반환한다.")
@@ -26,7 +26,7 @@ public class ReservationValidationTest {
         params.put("timeId", 1L);
         params.put("themeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -44,7 +44,7 @@ public class ReservationValidationTest {
         params.put("timeId", 1L);
         params.put("themeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -62,7 +62,7 @@ public class ReservationValidationTest {
         params.put("timeId", 1L);
         params.put("themeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -80,7 +80,7 @@ public class ReservationValidationTest {
         params.put("timeId", 0L);
         params.put("themeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -98,7 +98,7 @@ public class ReservationValidationTest {
         params.put("timeId", 1L);
         params.put("themeId", 0L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -116,7 +116,7 @@ public class ReservationValidationTest {
         params.put("timeId", 999L);
         params.put("themeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -133,7 +133,7 @@ public class ReservationValidationTest {
         params.put("timeId", 1L);
         params.put("themeId", 999L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")

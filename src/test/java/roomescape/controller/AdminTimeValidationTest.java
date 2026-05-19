@@ -17,12 +17,12 @@ import static org.hamcrest.Matchers.containsString;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class AdminTimeValidationTest {
+class AdminTimeValidationTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("시간 생성 시 startAt이 없으면 400과 함께 startAt 필드 오류 메시지를 반환한다.")
     void createTimeWithNullStartAt() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(Collections.emptyMap())
                 .when().post("/admin/times")
@@ -37,7 +37,7 @@ class AdminTimeValidationTest {
         Map<String, Object> params = new HashMap<>();
         params.put("startAt", "25:00");
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/admin/times")

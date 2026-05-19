@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.containsString;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class UserReservationValidationTest {
+class UserReservationValidationTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("예약 변경 시 날짜가 없으면 400과 함께 date 필드 오류 메시지를 반환한다.")
@@ -25,7 +25,7 @@ class UserReservationValidationTest {
         Map<String, Object> params = new HashMap<>();
         params.put("timeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/2")
@@ -41,7 +41,7 @@ class UserReservationValidationTest {
         params.put("date", "05-01-2026");
         params.put("timeId", 1L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/2")
@@ -57,7 +57,7 @@ class UserReservationValidationTest {
         params.put("date", "2026-07-01");
         params.put("timeId", 0L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().patch("/reservations/2")

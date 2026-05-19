@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Import(FixedClockConfig.class)
-public class ReservationTest {
+public class ReservationTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("예약이 성공적으로 되는지 확인한다.")
@@ -28,14 +28,14 @@ public class ReservationTest {
         params.put("timeId", 1L);
         params.put("themeId", 2L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
                 .then().log().all()
                 .statusCode(201);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().get("/admin/reservations")
@@ -63,7 +63,7 @@ public class ReservationTest {
         params.put("timeId", 1L);
         params.put("themeId", 2L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
@@ -74,13 +74,13 @@ public class ReservationTest {
     @Test
     @DisplayName("예약이 성공적으로 삭제되는지 확인한다.")
     void deleteReservationTest() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .when().delete("/admin/reservations/1")
                 .then().log().all()
                 .statusCode(204);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .when().get("/admin/reservations")
                 .then().log().all()

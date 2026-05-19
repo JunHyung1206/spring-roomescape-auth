@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class AdminThemeTest {
+class AdminThemeTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("테마를 생성하는지에 대한 테스트")
@@ -26,7 +26,7 @@ class AdminThemeTest {
         params.put("thumbnailUrl", "test_url");
         params.put("description", "공포_설명");
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/admin/themes")
@@ -40,7 +40,7 @@ class AdminThemeTest {
     @Test
     @DisplayName("테마를 조회하는지에 대한 테스트")
     void readThemes() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().get("/admin/themes")
                 .then().log().all()
                 .statusCode(200)
@@ -50,7 +50,7 @@ class AdminThemeTest {
     @Test
     @DisplayName("예약 없는 테마 삭제 성공")
     void deleteThemeWithoutReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/admin/themes/2")
                 .then().log().all()
                 .statusCode(204);
@@ -59,7 +59,7 @@ class AdminThemeTest {
     @Test
     @DisplayName("예약 있는 테마 삭제 실패")
     void deleteThemeWithReservation() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .when().delete("/admin/themes/1")
                 .then().log().all()
                 .statusCode(400);

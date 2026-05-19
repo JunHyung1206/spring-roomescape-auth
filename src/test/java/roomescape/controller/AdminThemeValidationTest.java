@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.containsString;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Import(FixedClockConfig.class)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class AdminThemeValidationTest {
+class AdminThemeValidationTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("테마 생성 시 이름이 없으면 400과 함께 name 필드 오류 메시지를 반환한다.")
@@ -26,7 +26,7 @@ class AdminThemeValidationTest {
         params.put("thumbnailUrl", "https://example.com/img.jpg");
         params.put("description", "설명");
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/admin/themes")
@@ -43,7 +43,7 @@ class AdminThemeValidationTest {
         params.put("thumbnailUrl", "https://example.com/img.jpg");
         params.put("description", "설명");
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/admin/themes")
@@ -58,7 +58,7 @@ class AdminThemeValidationTest {
         Map<String, Object> params = new HashMap<>();
         params.put("name", "공포의 방");
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/admin/themes")

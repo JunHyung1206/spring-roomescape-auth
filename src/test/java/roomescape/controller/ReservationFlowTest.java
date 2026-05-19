@@ -16,12 +16,12 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Import(FixedClockConfig.class)
-class ReservationFlowTest {
+class ReservationFlowTest extends AuthenticatedTest {
 
     @Test
     @DisplayName("예약 가능 시간 조회 → 예약 생성 → 다시 조회 시 빠짐")
     void reservationFlow() {
-        RestAssured.given().log().all()
+        given().log().all()
                 .queryParam("date", "2026-04-28")
                 .queryParam("themeId", 2L)
                 .when().get("/times")
@@ -35,14 +35,14 @@ class ReservationFlowTest {
         params.put("timeId", 1L);
         params.put("themeId", 2L);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .contentType(ContentType.JSON)
                 .body(params)
                 .when().post("/reservations")
                 .then().log().all()
                 .statusCode(201);
 
-        RestAssured.given().log().all()
+        given().log().all()
                 .queryParam("date", "2026-06-28")
                 .queryParam("themeId", 2L)
                 .when().get("/times")
