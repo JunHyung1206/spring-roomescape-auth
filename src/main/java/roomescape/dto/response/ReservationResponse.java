@@ -19,7 +19,7 @@ public record ReservationResponse(
     public static ReservationResponse from(Reservation reservation) {
         return new ReservationResponse(
                 reservation.id(),
-                reservation.username(),
+                reservation.user().name(),
                 reservation.reservationDate(),
                 new TimeInfo(reservation.reservationTime().id(), reservation.reservationTime().startAt()),
                 new ThemeInfo(

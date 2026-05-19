@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
 import roomescape.domain.Theme;
+import roomescape.domain.User;
 import roomescape.exception.ResourceNotFoundException;
 
 import java.time.LocalDate;
@@ -18,9 +19,37 @@ import java.util.List;
 @Repository
 public class ReservationDao {
 
+    private static final String SELECT_RESERVATION_BASE = """
+            SELECT
+                reservation.id          AS reservation_id,
+                reservation.date        AS reservation_date,
+                users.id                AS users_id,
+                users.name              AS users_name,
+                users.login_id          AS users_login_id,
+                users.password          AS users_password,
+                time.id                 AS time_id,
+                time.start_at           AS time_value,
+                theme.id                AS theme_id,
+                theme.name              AS theme_name,
+                theme.thumbnail_url     AS thumbnail_url,
+                theme.description       AS theme_description
+            FROM reservation
+            INNER JOIN users            ON reservation.users_id = users.id
+            INNER JOIN reservation_time AS time ON reservation.time_id = time.id
+            INNER JOIN theme            ON reservation.theme_id = theme.id
+            """;
+
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertExecutor;
     private final RowMapper<Reservation> rowMapper = (rs, rowNum) -> {
+
+        User user = User.create(
+                rs.getLong("users_id"),
+                rs.getString("users_name"),
+                rs.getString("users_login_id"),
+                rs.getString("users_password")
+        );
+
         Theme theme = Theme.create(
                 rs.getLong("theme_id"),
                 rs.getString("theme_name"),
@@ -35,8 +64,8 @@ public class ReservationDao {
 
         return Reservation.create(
                 rs.getLong("reservation_id"),
-                rs.getString("name"),
-                rs.getObject("date", LocalDate.class),
+                user,
+                rs.getObject("reservation_date", LocalDate.class),
                 reservationTime,
                 theme
         );
@@ -49,36 +78,15 @@ public class ReservationDao {
                 .usingGeneratedKeyColumns("id");
     }
 
-    public Reservation save(String name, LocalDate date, long timeId, long themeId) {
-
+    public Reservation save(long userId, LocalDate date, long timeId, long themeId) {
         SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("name", name)
+                .addValue("users_id", userId)
                 .addValue("date", date)
                 .addValue("time_id", timeId)
                 .addValue("theme_id", themeId);
 
         Number reservationId = insertExecutor.executeAndReturnKey(params);
-
-        String sql = """
-                SELECT 
-                    reservation.id as reservation_id,
-                    reservation.name,
-                    reservation.date,
-                    time.id as time_id,
-                    time.start_at as time_value,
-                    theme.id as theme_id,
-                    theme.name as theme_name,
-                    theme.thumbnail_url as thumbnail_url,
-                    theme.description as theme_description 
-                FROM reservation as reservation
-                INNER JOIN reservation_time as time
-                ON reservation.time_id = time.id
-                INNER JOIN theme as theme
-                ON reservation.theme_id = theme.id
-                WHERE reservation.id = ?
-                """;
-
-        return jdbcTemplate.queryForObject(sql, rowMapper, reservationId.longValue());
+        return findById(reservationId.longValue());
     }
 
     public void delete(long reservationId) {
@@ -91,68 +99,20 @@ public class ReservationDao {
     }
 
     public List<Reservation> findAllReservations() {
-        String sql = """
-                SELECT
-                    reservation.id as reservation_id,
-                    reservation.name,
-                    reservation.date,
-                    time.id as time_id,
-                    time.start_at as time_value,
-                    theme.id as theme_id,
-                    theme.name as theme_name,
-                    theme.thumbnail_url as thumbnail_url,
-                    theme.description as theme_description 
-                FROM reservation as reservation
-                INNER JOIN reservation_time as time
-                ON reservation.time_id = time.id
-                INNER JOIN theme as theme
-                ON reservation.theme_id = theme.id
-                """;
-
-        return jdbcTemplate.query(sql, rowMapper);
+        return jdbcTemplate.query(SELECT_RESERVATION_BASE, rowMapper);
     }
 
     public Reservation findById(long reservationId) {
-        String sql = """
-                SELECT
-                    reservation.id as reservation_id,
-                    reservation.name,
-                    reservation.date,
-                    time.id as time_id,
-                    time.start_at as time_value,
-                    theme.id as theme_id,
-                    theme.name as theme_name,
-                    theme.thumbnail_url as thumbnail_url,
-                    theme.description as theme_description
-                FROM reservation as reservation
-                INNER JOIN reservation_time as time ON reservation.time_id = time.id
-                INNER JOIN theme as theme ON reservation.theme_id = theme.id
-                WHERE reservation.id = ?
-                """;
+        String sql = SELECT_RESERVATION_BASE + " WHERE reservation.id = ?";
         return jdbcTemplate.query(sql, rowMapper, reservationId)
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("요청한 예약을 찾을 수 없습니다."));
     }
 
-    public List<Reservation> findByName(String name) {
-        String sql = """
-                SELECT
-                    reservation.id as reservation_id,
-                    reservation.name,
-                    reservation.date,
-                    time.id as time_id,
-                    time.start_at as time_value,
-                    theme.id as theme_id,
-                    theme.name as theme_name,
-                    theme.thumbnail_url as thumbnail_url,
-                    theme.description as theme_description
-                FROM reservation as reservation
-                INNER JOIN reservation_time as time ON reservation.time_id = time.id
-                INNER JOIN theme as theme ON reservation.theme_id = theme.id
-                WHERE reservation.name = ?
-                """;
-        return jdbcTemplate.query(sql, rowMapper, name);
+    public List<Reservation> findByUserId(long userId) {
+        String sql = SELECT_RESERVATION_BASE + " WHERE users_id = ?";
+        return jdbcTemplate.query(sql, rowMapper, userId);
     }
 
     public Reservation updateDateAndTime(long reservationId, LocalDate date, long timeId) {
@@ -163,11 +123,11 @@ public class ReservationDao {
 
     public boolean existsByDateAndTimeIdAndThemeId(LocalDate date, Long timeId, Long themeId) {
         String sql = """
-        SELECT EXISTS (
-            SELECT 1 FROM reservation
-            WHERE date = ? AND time_id = ? AND theme_id = ?
-        )
-        """;
+                SELECT EXISTS (
+                    SELECT 1 FROM reservation
+                    WHERE date = ? AND time_id = ? AND theme_id = ?
+                )
+                """;
         return Boolean.TRUE.equals(
                 jdbcTemplate.queryForObject(sql, Boolean.class, date, timeId, themeId)
         );
@@ -175,11 +135,11 @@ public class ReservationDao {
 
     public boolean existsByDateAndTimeIdAndThemeIdExcluding(LocalDate date, long timeId, long themeId, long excludeId) {
         String sql = """
-        SELECT EXISTS (
-            SELECT 1 FROM reservation
-            WHERE date = ? AND time_id = ? AND theme_id = ? AND id != ?
-        )
-        """;
+                SELECT EXISTS (
+                    SELECT 1 FROM reservation
+                    WHERE date = ? AND time_id = ? AND theme_id = ? AND id != ?
+                )
+                """;
         return Boolean.TRUE.equals(
                 jdbcTemplate.queryForObject(sql, Boolean.class, date, timeId, themeId, excludeId)
         );

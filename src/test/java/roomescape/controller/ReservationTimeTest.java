@@ -23,7 +23,7 @@ public class ReservationTimeTest {
                 .when().get("/times")
                 .then()
                 .statusCode(200).log().all()
-                .body("size()", is(2));;
+                .body("size()", is(7));;
     }
 
     @Test
@@ -36,6 +36,6 @@ public class ReservationTimeTest {
                 .when().get("/times")
                 .then()
                 .statusCode(200).log().all()
-                .body("size()", is(1));;
+                .body("size()", is(6));;
     }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import roomescape.domain.Reservation;
 import roomescape.domain.ReservationTime;
+import roomescape.domain.User;
 import roomescape.exception.DuplicateReservationException;
 import roomescape.exception.InvalidReferenceException;
 import roomescape.exception.PastReservationException;
@@ -11,6 +12,7 @@ import roomescape.exception.ResourceNotFoundException;
 import roomescape.repository.ReservationDao;
 import roomescape.repository.ReservationTimeDao;
 import roomescape.repository.ThemeDao;
+import roomescape.repository.UserDao;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -23,7 +25,17 @@ public class ReservationCommandService {
     private final ReservationDao reservationDao;
     private final ReservationTimeDao reservationTimeDao;
     private final ThemeDao themeDao;
+    private final UserDao userDao;
+
     private final Clock clock;
+
+    private User findUserReference(long userId) {
+        try {
+            return userDao.findById(userId);
+        } catch (ResourceNotFoundException e) {
+            throw new InvalidReferenceException("존재하지 않는 예약 시간입니다.");
+        }
+    }
 
     private ReservationTime findTimeReference(long timeId) {
         try {
@@ -45,7 +57,8 @@ public class ReservationCommandService {
         return date.atTime(time.startAt()).isBefore(LocalDateTime.now(clock));
     }
 
-    public Reservation create(String name, LocalDate date, long timeId, long themeId) {
+    public Reservation create(long userId, LocalDate date, long timeId, long themeId) {
+
         ReservationTime time = findTimeReference(timeId);
         findThemeReference(themeId);
         if (isPast(date, time)) {
@@ -54,7 +67,7 @@ public class ReservationCommandService {
         if (reservationDao.existsByDateAndTimeIdAndThemeId(date, timeId, themeId)) {
             throw new DuplicateReservationException("해당 날짜와 시간에 이미 예약이 존재합니다.");
         }
-        return reservationDao.save(name, date, timeId, themeId);
+        return reservationDao.save(userId, date, timeId, themeId);
     }
 
     public void delete(long reservationId) {

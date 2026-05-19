@@ -19,7 +19,9 @@ public class ReservationQueryService {
                 .toList();
     }
 
-    public List<Reservation> getByName(String name) {
-        return reservationDao.findByName(name);
+    public List<Reservation> getByUserId(long userId) {
+        List<Reservation> byUserId = reservationDao.findByUserId(userId);
+
+        return reservationDao.findByUserId(userId);
     }
 }

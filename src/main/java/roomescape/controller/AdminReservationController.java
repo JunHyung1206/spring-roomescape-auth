@@ -41,7 +41,7 @@ public class AdminReservationController {
 
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody ReservationRequest request) {
-        Reservation reservation = reservationCommandService.create(request.name(), request.date(), request.timeId(), request.themeId());
+        Reservation reservation = reservationCommandService.create(request.userId(), request.date(), request.timeId(), request.themeId());
 
         Long savedId = reservation.id();
         URI location = ServletUriComponentsBuilder

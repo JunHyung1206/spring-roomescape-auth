@@ -8,17 +8,17 @@ import java.time.LocalDate;
 public class Reservation {
 
     private final Long id;
-    private final String username;
+    private final User user;
     private final LocalDate reservationDate;
     private final ReservationTime reservationTime;
     private final Theme reservationTheme;
 
-    public static Reservation create(long id, String username, LocalDate date, ReservationTime time, Theme theme) {
-        return new Reservation(id, username, date, time, theme);
+    public static Reservation create(long id, User user, LocalDate date, ReservationTime time, Theme theme) {
+        return new Reservation(id, user, date, time, theme);
     }
 
-    public String username() {
-        return username;
+    public User user() {
+        return user;
     }
 
     public LocalDate reservationDate() {

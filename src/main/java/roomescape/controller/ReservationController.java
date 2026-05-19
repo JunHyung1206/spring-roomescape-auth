@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import roomescape.domain.Reservation;
 import roomescape.dto.request.ReservationRequest;
 import roomescape.dto.request.ReservationUpdateRequest;
 import roomescape.dto.response.ReservationResponse;
@@ -30,8 +31,8 @@ public class ReservationController {
     private final ReservationQueryService reservationQueryService;
 
     @GetMapping
-    public ResponseEntity<List<ReservationResponse>> getMyReservations(@RequestParam String name) {
-        List<ReservationResponse> responses = reservationQueryService.getByName(name)
+    public ResponseEntity<List<ReservationResponse>> getMyReservations(@RequestParam Long userId) {
+        List<ReservationResponse> responses = reservationQueryService.getByUserId(userId)
                 .stream()
                 .map(ReservationResponse::from)
                 .toList();
@@ -41,7 +42,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationResponse> createReservation(@Valid @RequestBody ReservationRequest request) {
         ReservationResponse reservationResponse = ReservationResponse.from(
-                reservationCommandService.create(request.name(), request.date(), request.timeId(), request.themeId()));
+                reservationCommandService.create(request.userId(), request.date(), request.timeId(), request.themeId()));
 
         Long savedId = reservationResponse.id();
 

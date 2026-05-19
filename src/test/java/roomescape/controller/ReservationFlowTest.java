@@ -30,7 +30,7 @@ class ReservationFlowTest {
                 .body("size()", is(3));
 
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "user_b");
+        params.put("userId", 2L);
         params.put("date", "2026-06-28");
         params.put("timeId", 1L);
         params.put("themeId", 2L);

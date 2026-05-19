@@ -19,46 +19,10 @@ import static org.hamcrest.Matchers.containsString;
 public class ReservationValidationTest {
 
     @Test
-    @DisplayName("이름이 빈 문자열이면 400과 함께 name 필드 오류 메시지를 반환한다.")
-    void emptyNameReservationTest() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", "");
-        params.put("date", "2026-06-05");
-        params.put("timeId", 1L);
-        params.put("themeId", 1L);
-
-        RestAssured.given().log().all()
-                .contentType(ContentType.JSON)
-                .body(params)
-                .when().post("/reservations")
-                .then().log().all()
-                .statusCode(400)
-                .body(containsString("name"));
-    }
-
-    @Test
-    @DisplayName("이름이 공백만 있으면 400과 함께 name 필드 오류 메시지를 반환한다.")
-    void blankNameReservationTest() {
-        Map<String, Object> params = new HashMap<>();
-        params.put("name", "   ");
-        params.put("date", "2026-06-05");
-        params.put("timeId", 1L);
-        params.put("themeId", 1L);
-
-        RestAssured.given().log().all()
-                .contentType(ContentType.JSON)
-                .body(params)
-                .when().post("/reservations")
-                .then().log().all()
-                .statusCode(400)
-                .body(containsString("name"));
-    }
-
-    @Test
     @DisplayName("날짜가 없으면 400과 함께 date 필드 오류 메시지를 반환한다.")
     void nullDateReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("timeId", 1L);
         params.put("themeId", 1L);
 
@@ -75,7 +39,7 @@ public class ReservationValidationTest {
     @DisplayName("날짜가 yyyy-MM-dd 형식이 아니면 400과 함께 date 필드 오류 메시지를 반환한다.")
     void invalidDateFormatReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("date", "06-05-2026");
         params.put("timeId", 1L);
         params.put("themeId", 1L);
@@ -93,7 +57,7 @@ public class ReservationValidationTest {
     @DisplayName("존재하지 않는 날짜이면 400과 함께 date 필드 오류 메시지를 반환한다.")
     void invalidDateReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("date", "2026-13-05");
         params.put("timeId", 1L);
         params.put("themeId", 1L);
@@ -111,7 +75,7 @@ public class ReservationValidationTest {
     @DisplayName("timeId가 0이면 400과 함께 timeId 필드 오류 메시지를 반환한다.")
     void zeroTimeIdReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("date", "2026-06-05");
         params.put("timeId", 0L);
         params.put("themeId", 1L);
@@ -129,7 +93,7 @@ public class ReservationValidationTest {
     @DisplayName("themeId가 0이면 400과 함께 themeId 필드 오류 메시지를 반환한다.")
     void zeroThemeIdReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("date", "2026-06-05");
         params.put("timeId", 1L);
         params.put("themeId", 0L);
@@ -147,7 +111,7 @@ public class ReservationValidationTest {
     @DisplayName("존재하지 않는 timeId로 예약 시 400을 반환한다.")
     void nonExistentTimeIdReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("date", "2026-06-05");
         params.put("timeId", 999L);
         params.put("themeId", 1L);
@@ -164,7 +128,7 @@ public class ReservationValidationTest {
     @DisplayName("존재하지 않는 themeId로 예약 시 400을 반환한다.")
     void nonExistentThemeIdReservationTest() {
         Map<String, Object> params = new HashMap<>();
-        params.put("name", "녀녕");
+        params.put("userId", 1L);
         params.put("date", "2026-06-05");
         params.put("timeId", 1L);
         params.put("themeId", 999L);
