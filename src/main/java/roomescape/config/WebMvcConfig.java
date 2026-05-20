@@ -1,5 +1,6 @@
 package roomescape.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -11,14 +12,18 @@ import roomescape.interceptor.LoginInterceptor;
 import java.util.List;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    private final LoginInterceptor loginInterceptor;
+    private final AdminInterceptor adminInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor())
+        registry.addInterceptor(loginInterceptor)
                 .addPathPatterns("/reservations/**", "/admin/**", "/login-check");
 
-        registry.addInterceptor(new AdminInterceptor())
+        registry.addInterceptor(adminInterceptor)
                 .addPathPatterns("/admin/**");
     }
 
