@@ -54,7 +54,7 @@ public class JwtProvider {
                     null,
                     claims.get("role", String.class)
             );
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
             throw new UnauthorizedException("유효하지 않은 토큰입니다.");
         }
     }

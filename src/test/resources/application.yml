@@ -14,3 +14,7 @@ spring:
 logging:
   level:
     root: warn
+
+jwt:
+  secret: my-secret-key-for-roomescape-auth-must-be-long-enough
+  expiration-ms: 3600000
