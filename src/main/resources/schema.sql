@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS reservation;
 DROP TABLE IF EXISTS reservation_time;
 DROP TABLE IF EXISTS theme;
+DROP TABLE IF EXISTS store;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users
@@ -13,13 +14,24 @@ CREATE TABLE users
     PRIMARY KEY (id)
 );
 
+CREATE TABLE store
+(
+    id         BIGINT       NOT NULL AUTO_INCREMENT,
+    name       VARCHAR(255) NOT NULL,
+    manager_id BIGINT       NOT NULL UNIQUE,
+    PRIMARY KEY (id),
+    FOREIGN KEY (manager_id) REFERENCES users (id) ON DELETE RESTRICT
+);
+
 CREATE TABLE theme
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
     name          VARCHAR(255) NOT NULL,
     thumbnail_url VARCHAR(255),
     description   VARCHAR(500),
-    PRIMARY KEY (id)
+    store_id      BIGINT       NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (store_id) REFERENCES store (id) ON DELETE RESTRICT
 );
 
 

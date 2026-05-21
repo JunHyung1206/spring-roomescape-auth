@@ -22,35 +22,34 @@ public class ThemeDao {
             rs.getLong("id"),
             rs.getString("name"),
             rs.getString("thumbnail_url"),
-            rs.getString("description")
+            rs.getString("description"),
+            rs.getLong("store_id")
     );
 
     public ThemeDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.insertExecutor = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("theme")
+                .usingColumns("name", "thumbnail_url", "description", "store_id")
                 .usingGeneratedKeyColumns("id");
     }
 
-    public Theme save(String name, String thumbnailUrl, String description) {
+    public Theme save(String name, String thumbnailUrl, String description, long storeId) {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("name", name)
                 .addValue("thumbnail_url", thumbnailUrl)
-                .addValue("description", description);
+                .addValue("description", description)
+                .addValue("store_id", storeId);
 
         Number themeId = insertExecutor.executeAndReturnKey(params);
 
-        String sql = """
-                SELECT * FROM theme WHERE theme.id = ?
-                """;
+        String sql = "SELECT * FROM theme WHERE theme.id = ?";
 
         return jdbcTemplate.queryForObject(sql, rowMapper, themeId.longValue());
     }
 
     public void delete(long themeId) {
-        String sql = """
-                DELETE FROM theme WHERE id = ?
-                """;
+        String sql = "DELETE FROM theme WHERE id = ?";
         int affected = jdbcTemplate.update(sql, themeId);
 
         if(affected == 0) {
@@ -59,9 +58,7 @@ public class ThemeDao {
     }
 
     public Theme findById(long themeId) {
-        String sql = """
-                SELECT * FROM theme WHERE id = ?
-                """;
+        String sql = "SELECT * FROM theme WHERE id = ?";
         return jdbcTemplate.query(sql, rowMapper, themeId)
                 .stream()
                 .findFirst()
@@ -69,20 +66,17 @@ public class ThemeDao {
     }
 
     public List<Theme> findAllThemes() {
-        String sql = """
-                SELECT * FROM theme
-                """;
-
-        return jdbcTemplate.query(sql, rowMapper);
+        return jdbcTemplate.query("SELECT * FROM theme", rowMapper);
     }
 
     public List<Theme> findSortedPopularThemesBy(LocalDate startAt, LocalDate endAt, int limit) {
         String sql = """
-                SELECT 
-                    theme.id, 
-                    theme.name, 
-                    theme.thumbnail_url, 
+                SELECT
+                    theme.id,
+                    theme.name,
+                    theme.thumbnail_url,
                     theme.description,
+                    theme.store_id,
                     COUNT(reservation.id) as count
                 FROM reservation
                 INNER JOIN theme ON reservation.theme_id = theme.id
@@ -93,6 +87,5 @@ public class ThemeDao {
                 """;
 
         return jdbcTemplate.query(sql, rowMapper, startAt, endAt, limit);
-
     }
 }

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매장 매니저</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+
+        header {
+            background: #16a085;
+            color: white;
+            padding: 16px 24px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 16px;
+        }
+
+        .store-banner {
+            background: white;
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .store-banner .label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .store-banner .store-name {
+            font-size: 1.3rem;
+            color: #16a085;
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            color: #2c3e50;
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #f8f9fa;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            color: #666;
+            border-bottom: 2px solid #eee;
+        }
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+        }
+        tr:hover td { background: #fafafa; }
+
+        button {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-logout {
+            background: #fff;
+            color: #16a085;
+            border: 1px solid white;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .empty { color: #aaa; font-size: 0.9rem; padding: 16px 0; text-align: center; }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #16a085;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<header>
+    <span>매장 매니저</span>
+    <span style="font-size:0.9rem;font-weight:normal;display:flex;align-items:center;">
+        <span id="userName"></span>
+        <button class="btn-logout" onclick="logout()" style="margin-left:12px;">로그아웃</button>
+    </span>
+</header>
+
+<div class="container">
+    <div class="store-banner">
+        <div class="label">관리 중인 매장</div>
+        <div class="store-name" id="storeName">-</div>
+    </div>
+
+    <div class="card">
+        <h2>우리 매장 예약</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>예약자</th>
+                <th>날짜</th>
+                <th>시간</th>
+                <th>테마</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="reservation-list"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function showToast(msg, color = '#16a085') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.style.background = color;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 2500);
+    }
+
+    async function checkLogin() {
+        const res = await fetch('/login-check');
+        if (res.status === 401 || res.status === 403) {
+            window.location.href = '/login';
+            return null;
+        }
+        const data = await res.json();
+        if (!data.managedStoreId) {
+            // 매니저가 아닌데 들어옴
+            alert('매장 매니저만 접근 가능합니다.');
+            window.location.href = '/';
+            return null;
+        }
+        document.getElementById('userName').textContent = data.name + '님';
+        document.getElementById('storeName').textContent = data.managedStoreName;
+        return data;
+    }
+
+    async function logout() {
+        await fetch('/logout', {method: 'POST'});
+        window.location.href = '/login';
+    }
+
+    async function loadReservations() {
+        const res = await fetch('/admin/reservations');
+        const list = await res.json();
+        const tbody = document.getElementById('reservation-list');
+        tbody.innerHTML = list.length === 0
+            ? '<tr><td colspan="6" class="empty">예약이 없습니다.</td></tr>'
+            : list.map(r => `
+                <tr>
+                    <td>${r.id}</td>
+                    <td>${r.name}</td>
+                    <td>${r.date}</td>
+                    <td>${r.time.startAt}</td>
+                    <td>${r.theme.name}</td>
+                    <td><button class="btn-danger" onclick="deleteReservation(${r.id})">삭제</button></td>
+                </tr>`).join('');
+    }
+
+    async function deleteReservation(id) {
+        if (!confirm('이 예약을 삭제하시겠습니까?')) return;
+        const res = await fetch(`/admin/reservations/${id}`, {method: 'DELETE'});
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({message: '삭제에 실패했습니다.'}));
+            showToast(err.message, '#e74c3c');
+            return;
+        }
+        showToast('삭제되었습니다.');
+        loadReservations();
+    }
+
+    checkLogin().then(data => {
+        if (data) loadReservations();
+    });
+</script>
+</body>
+</html>

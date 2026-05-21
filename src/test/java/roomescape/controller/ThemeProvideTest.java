@@ -3,26 +3,16 @@ package roomescape.controller;
 import static org.hamcrest.Matchers.is;
 
 import io.restassured.RestAssured;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/testData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Import(FixedClockConfig.class)
 public class ThemeProvideTest {
-
-    @LocalServerPort
-    private int port;
-
-    @BeforeEach
-    void setUp() {
-        RestAssured.port = port;
-    }
 
     @Test
     @DisplayName("가장 인기있는 테마 개수 10개를 들고오는지에 대한 테스트")

@@ -1,16 +1,33 @@
+-- users
+-- user_a: 전체 관리자(ADMIN)
+-- user_b, user_c: 일반 사용자(USER)
+-- manager_1, manager_2: 일반 사용자(USER)지만 store.manager_id로 매장 매니저 역할
+INSERT INTO users (name, login_id, password, role)
+VALUES ('사용자1', 'user_a', '1234', 'ADMIN'),
+       ('사용자2', 'user_b', '1234', 'USER'),
+       ('사용자3', 'user_c', '1234', 'USER'),
+       ('강남점매니저', 'manager_1', '1234', 'USER'),
+       ('홍대점매니저', 'manager_2', '1234', 'USER');
+
+-- store: 매장이 매니저를 참조
+INSERT INTO store (name, manager_id)
+VALUES ('강남점', 4),
+       ('홍대점', 5);
+
 -- theme (11개 - 10위권 밖 케이스도 포함)
-INSERT INTO theme (name, thumbnail_url, description)
-VALUES ('공포의 저택', 'https://picsum.photos/seed/horror/400/300', '어둠 속에 숨겨진 공포를 체험하세요'),
-       ('우주 탐험대', 'https://picsum.photos/seed/space/400/300', '은하계를 누비는 우주 탐험'),
-       ('탐정 사무소', 'https://picsum.photos/seed/detective/400/300', '단서를 모아 사건을 해결하라'),
-       ('마법사의 탑', 'https://picsum.photos/seed/magic/400/300', '마법이 살아 숨쉬는 신비의 탑'),
-       ('해적선', 'https://picsum.photos/seed/pirate/400/300', '보물을 찾아 망망대해를 항해'),
-       ('고대 신전', 'https://picsum.photos/seed/temple/400/300', '잊혀진 문명의 비밀을 파헤쳐라'),
-       ('좀비 연구소', 'https://picsum.photos/seed/zombie/400/300', '바이러스 확산을 막아라'),
-       ('타임머신', 'https://picsum.photos/seed/time/400/300', '과거와 미래를 넘나드는 시간 여행'),
-       ('사막의 오아시스', 'https://picsum.photos/seed/desert/400/300', '사막 한가운데 숨겨진 비밀'),
-       ('폐광', 'https://picsum.photos/seed/mine/400/300', '버려진 광산 속 미스터리'),
-       ('유령 호텔', 'https://picsum.photos/seed/ghost/400/300', '체크아웃할 수 없는 호텔');
+-- 강남점(1): 테마 1-6, 홍대점(2): 테마 7-11
+INSERT INTO theme (name, thumbnail_url, description, store_id)
+VALUES ('공포의 저택', 'https://picsum.photos/seed/horror/400/300', '어둠 속에 숨겨진 공포를 체험하세요', 1),
+       ('우주 탐험대', 'https://picsum.photos/seed/space/400/300', '은하계를 누비는 우주 탐험', 1),
+       ('탐정 사무소', 'https://picsum.photos/seed/detective/400/300', '단서를 모아 사건을 해결하라', 1),
+       ('마법사의 탑', 'https://picsum.photos/seed/magic/400/300', '마법이 살아 숨쉬는 신비의 탑', 1),
+       ('해적선', 'https://picsum.photos/seed/pirate/400/300', '보물을 찾아 망망대해를 항해', 1),
+       ('고대 신전', 'https://picsum.photos/seed/temple/400/300', '잊혀진 문명의 비밀을 파헤쳐라', 1),
+       ('좀비 연구소', 'https://picsum.photos/seed/zombie/400/300', '바이러스 확산을 막아라', 2),
+       ('타임머신', 'https://picsum.photos/seed/time/400/300', '과거와 미래를 넘나드는 시간 여행', 2),
+       ('사막의 오아시스', 'https://picsum.photos/seed/desert/400/300', '사막 한가운데 숨겨진 비밀', 2),
+       ('폐광', 'https://picsum.photos/seed/mine/400/300', '버려진 광산 속 미스터리', 2),
+       ('유령 호텔', 'https://picsum.photos/seed/ghost/400/300', '체크아웃할 수 없는 호텔', 2);
 
 -- reservation_time
 INSERT INTO reservation_time (start_at)
@@ -21,11 +38,6 @@ VALUES ('10:00'),
        ('14:00'),
        ('15:00'),
        ('16:00');
-
-INSERT INTO users (name, login_id, password, role)
-VALUES ('사용자1', 'user_a', '1234', 'ADMIN'),
-       ('사용자2', 'user_b', '1234', 'USER'),
-       ('사용자3', 'user_c', '1234', 'USER');
 
 -- reservation (집계 기간: 04-28 ~ 05-04)
 -- 예상 순위: 1(7건) > 2(6건) > 3(5건) > 4(4건) > 5(4건) > 6(3건) > 7(3건) > 8(2건) > 9(2건) > 10(1건) / 11(0건)
@@ -80,4 +92,13 @@ VALUES
 (1, '2026-05-03', 2, 10),
 -- 테마11: 0건 (집계 기간 외 데이터 - 범위 필터 검증용)
 (1, '2026-04-27', 1, 11),
-(1, '2026-05-05', 1, 11);
+(1, '2026-05-05', 1, 11),
+-- 매니저 시연용 미래 예약 (취소/변경 가능한 데이터)
+-- 강남점(manager_1 관할)
+(2, '2026-06-10', 1, 1),
+(3, '2026-06-15', 2, 3),
+(2, '2026-06-20', 3, 5),
+-- 홍대점(manager_2 관할)
+(2, '2026-06-12', 1, 7),
+(3, '2026-06-18', 2, 9),
+(2, '2026-06-22', 3, 10);

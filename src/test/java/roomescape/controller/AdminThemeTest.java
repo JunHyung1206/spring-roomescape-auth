@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import static org.hamcrest.Matchers.is;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -21,10 +22,11 @@ class AdminThemeTest extends AuthenticatedTest {
     @Test
     @DisplayName("테마를 생성하는지에 대한 테스트")
     void createTheme() {
-        Map<String, String> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("name", "공포");
         params.put("thumbnailUrl", "test_url");
         params.put("description", "공포_설명");
+        params.put("storeId", 1);
 
         given().log().all()
                 .contentType(ContentType.JSON)

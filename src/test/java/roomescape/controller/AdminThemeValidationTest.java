@@ -57,6 +57,7 @@ class AdminThemeValidationTest extends AuthenticatedTest {
     void createThemeWithoutOptionalFields() {
         Map<String, Object> params = new HashMap<>();
         params.put("name", "공포의 방");
+        params.put("storeId", 1);
 
         given().log().all()
                 .contentType(ContentType.JSON)

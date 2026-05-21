@@ -107,7 +107,16 @@
         });
 
         if (res.ok) {
-            window.location.href = '/';
+            // Role에 따라 페이지 분기
+            const check = await fetch('/login-check');
+            const info = await check.json();
+            if (info.role === 'ADMIN') {
+                window.location.href = '/admin';
+            } else if (info.managedStoreId) {
+                window.location.href = '/manager';
+            } else {
+                window.location.href = '/';
+            }
         } else {
             const err = await res.json().catch(() => ({message: '로그인에 실패했습니다.'}));
             showError(err.message);

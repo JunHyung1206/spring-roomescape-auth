@@ -33,7 +33,8 @@ public class ReservationDao {
                 theme.id                AS theme_id,
                 theme.name              AS theme_name,
                 theme.thumbnail_url     AS thumbnail_url,
-                theme.description       AS theme_description
+                theme.description       AS theme_description,
+                theme.store_id          AS theme_store_id
             FROM reservation
             INNER JOIN users            ON reservation.users_id = users.id
             INNER JOIN reservation_time AS time ON reservation.time_id = time.id
@@ -56,7 +57,8 @@ public class ReservationDao {
                 rs.getLong("theme_id"),
                 rs.getString("theme_name"),
                 rs.getString("thumbnail_url"),
-                rs.getString("theme_description")
+                rs.getString("theme_description"),
+                rs.getLong("theme_store_id")
         );
 
         ReservationTime reservationTime = ReservationTime.create(
@@ -115,6 +117,11 @@ public class ReservationDao {
     public List<Reservation> findByUserId(long userId) {
         String sql = SELECT_RESERVATION_BASE + " WHERE users_id = ?";
         return jdbcTemplate.query(sql, rowMapper, userId);
+    }
+
+    public List<Reservation> findByStoreId(long storeId) {
+        String sql = SELECT_RESERVATION_BASE + " WHERE theme.store_id = ?";
+        return jdbcTemplate.query(sql, rowMapper, storeId);
     }
 
     public Reservation updateDateAndTime(long reservationId, LocalDate date, long timeId) {

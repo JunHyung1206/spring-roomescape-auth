@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import roomescape.auth.LoginUser;
 import roomescape.domain.Reservation;
+import roomescape.domain.User;
 import roomescape.dto.request.AdminReservationRequest;
 import roomescape.dto.response.ReservationResponse;
 import roomescape.service.ReservationCommandService;
@@ -30,10 +32,10 @@ public class AdminReservationController {
     private final ReservationQueryService reservationQueryService;
 
     @GetMapping
-    public ResponseEntity<List<ReservationResponse>> getAllReservations() {
-        List<Reservation> allReservations = reservationQueryService.getAllReservations();
+    public ResponseEntity<List<ReservationResponse>> getAllReservations(@LoginUser User user) {
+        List<Reservation> reservations = reservationQueryService.getAllReservations(user);
 
-        List<ReservationResponse> reservationResponses = allReservations.stream()
+        List<ReservationResponse> reservationResponses = reservations.stream()
                 .map(ReservationResponse::from)
                 .toList();
         return ResponseEntity.ok(reservationResponses);
@@ -54,8 +56,8 @@ public class AdminReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable("id") Long id) {
-        reservationCommandService.delete(id);
+    public ResponseEntity<Void> deleteReservation(@LoginUser User user, @PathVariable("id") Long id) {
+        reservationCommandService.delete(id, user);
         return ResponseEntity.noContent().build();
     }
 }

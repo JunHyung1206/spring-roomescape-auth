@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>방탈출 예약 (모바일)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+        header {
+            background: #2c3e50; color: white;
+            padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        header .title { font-size: 1.2rem; font-weight: bold; }
+        header .badge { font-size: 0.7rem; background: #e67e22; padding: 3px 8px; border-radius: 10px; margin-left: 8px; }
+        header .right { font-size: 0.9rem; font-weight: normal; }
+        header button {
+            margin-left: 12px; padding: 6px 14px;
+            background: #e74c3c; color: white;
+            border: none; border-radius: 5px;
+            cursor: pointer; font-size: 0.85rem;
+        }
+        .container { max-width: 860px; margin: 40px auto; padding: 0 16px; }
+        .card {
+            background: white; border-radius: 8px;
+            padding: 24px; margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card h2 { font-size: 1.1rem; margin-bottom: 16px; color: #2c3e50; }
+        .reservation-item {
+            border: 1px solid #eee; border-radius: 8px;
+            padding: 16px 18px; margin-bottom: 10px;
+            background: #fafafa;
+            font-size: 0.95rem;
+        }
+        .reservation-item span { margin-right: 16px; color: #555; }
+        .empty { color: #aaa; font-size: 0.9rem; padding: 16px 0; text-align: center; }
+        .token-view {
+            background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px;
+            padding: 12px; font-family: monospace; font-size: 0.75rem;
+            word-break: break-all; color: #555;
+            max-height: 80px; overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <span class="title">
+        방탈출 예약<span class="badge">📱 TOKEN</span>
+    </span>
+    <span class="right">
+        <span id="userName"></span>
+        <button onclick="logout()">로그아웃</button>
+    </span>
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>현재 저장된 토큰 (localStorage)</h2>
+        <div class="token-view" id="tokenView"></div>
+    </div>
+
+    <div class="card">
+        <h2>내 예약</h2>
+        <div id="reservationList"></div>
+    </div>
+</div>
+
+<script>
+    // 👇 페이지 진입할 때마다 토큰 존재 여부를 직접 확인해야 한다
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/mobile/login';
+    }
+
+    // 👇 토큰을 화면에 보여주기 (실험용)
+    document.getElementById('tokenView').textContent = token;
+
+    // 👇 fetch 할 때마다 Authorization 헤더를 직접 붙여야 한다
+    async function authFetch(url, options = {}) {
+        const res = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+
+        // 👇 토큰이 만료되거나 유효하지 않으면 직접 로그인 페이지로 보내야 한다
+        if (res.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/mobile/login';
+            return;
+        }
+        return res;
+    }
+
+    async function checkLogin() {
+        const res = await authFetch('/login-check');
+        if (!res) return;
+        const data = await res.json();
+        document.getElementById('userName').textContent = data.name + '님';
+    }
+
+    function logout() {
+        // 👇 서버에 알릴 필요도 없다. 그냥 토큰을 버리면 끝.
+        //    (다만 그 토큰은 만료 시간 전까지 여전히 유효함)
+        localStorage.removeItem('token');
+        window.location.href = '/mobile/login';
+    }
+
+    async function loadMyReservations() {
+        const res = await authFetch('/reservations');
+        if (!res) return;
+        const reservations = await res.json();
+        const list = document.getElementById('reservationList');
+
+        if (reservations.length === 0) {
+            list.innerHTML = '<p class="empty">예약 내역이 없습니다.</p>';
+            return;
+        }
+
+        list.innerHTML = reservations.map(r => `
+            <div class="reservation-item">
+                <span>📅 ${r.date}</span>
+                <span>⏰ ${r.time.startAt}</span>
+                <span>🎭 ${r.theme.name}</span>
+            </div>
+        `).join('');
+    }
+
+    checkLogin().then(() => loadMyReservations());
+</script>
+</body>
+</html>

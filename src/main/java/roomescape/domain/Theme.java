@@ -8,9 +8,10 @@ public class Theme {
     private final String name;
     private final String thumbnailUrl;
     private final String description;
+    private final Long storeId;
 
-    public static Theme create(long id, String name, String thumbnailUrl, String description) {
-        return new Theme(id, name, thumbnailUrl, description);
+    public static Theme create(long id, String name, String thumbnailUrl, String description, long storeId) {
+        return new Theme(id, name, thumbnailUrl, description, storeId);
     }
 
     public long id() {
@@ -27,5 +28,9 @@ public class Theme {
 
     public String description() {
         return description;
+    }
+
+    public Long storeId() {
+        return storeId;
     }
 }

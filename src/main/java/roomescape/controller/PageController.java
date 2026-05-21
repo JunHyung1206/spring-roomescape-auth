@@ -25,4 +25,19 @@ public class PageController {
     public String registerPage() {
         return "forward:/register/index.html";
     }
+
+    @GetMapping("/manager")
+    public String managerPage() {
+        return "forward:/manager/index.html";
+    }
+
+    @GetMapping("/mobile")
+    public String mobilePage() {
+        return "forward:/mobile/index.html";
+    }
+
+    @GetMapping("/mobile/login")
+    public String mobileLoginPage() {
+        return "forward:/mobile/login/index.html";
+    }
 }

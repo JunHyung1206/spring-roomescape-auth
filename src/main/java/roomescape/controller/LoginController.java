@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import roomescape.auth.JwtProvider;
 import roomescape.auth.LoginUser;
+import roomescape.domain.Store;
 import roomescape.domain.User;
 import roomescape.dto.request.LoginRequest;
 import roomescape.dto.response.LoginCheckResponse;
 import roomescape.dto.response.MobileLoginResponse;
+import roomescape.repository.StoreDao;
 import roomescape.service.LoginService;
 
 @RestController
@@ -22,6 +24,7 @@ public class LoginController {
 
     private final LoginService loginService;
     private final JwtProvider jwtProvider;
+    private final StoreDao storeDao;
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@Valid @RequestBody LoginRequest request, HttpSession session) {
@@ -32,7 +35,8 @@ public class LoginController {
 
     @GetMapping("/login-check")
     public ResponseEntity<LoginCheckResponse> loginCheck(@LoginUser User user) {
-        return ResponseEntity.ok(LoginCheckResponse.from(user));
+        Store managedStore = storeDao.findByManagerId(user.id()).orElse(null);
+        return ResponseEntity.ok(LoginCheckResponse.from(user, managedStore));
     }
 
     @PostMapping("/mobile/login")

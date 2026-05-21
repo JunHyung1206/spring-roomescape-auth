@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "/testReservationData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Import(FixedClockConfig.class)
 public class MobileAuthTest {
 
     @Test
@@ -82,7 +84,7 @@ public class MobileAuthTest {
     }
 
     @Test
-    @DisplayName("USER 토큰으로 관리자 API를 호출하면 401을 반환한다.")
+    @DisplayName("USER 토큰으로 관리자 API를 호출하면 403을 반환한다.")
     void adminAccessWithUserToken() {
         String token = getToken("user_b", "1234"); // user_b는 USER
 
@@ -90,7 +92,7 @@ public class MobileAuthTest {
                 .header("Authorization", "Bearer " + token)
                 .when().get("/admin/reservations")
                 .then().log().all()
-                .statusCode(401);
+                .statusCode(403);
     }
 
     private String getToken(String loginId, String password) {
